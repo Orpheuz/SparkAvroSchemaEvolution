@@ -1,0 +1,25 @@
+{
+  "type": "record",
+  "name": "Record",
+  "namespace": "com.example.avro",
+  "doc": "This is a record",
+  "fields": [
+    {
+      "name": "mandatoryInteger",
+      "doc": "A non-nullable integer",
+      "type": "int"
+    },
+	{
+	  "name": "nullableString",
+	  "doc": "A nullable string",
+	  "type": ["null", "string"],
+	  "default": null
+	},
+	{
+	  "name": "aNewNullableString",
+	  "doc": "A new nullable string",
+	  "type": ["null", "string"],
+	  "default": null
+	}
+  ]
+}
