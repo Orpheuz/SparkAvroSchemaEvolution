@@ -1,2 +1,2 @@
-SparkAvroSchemaEvolution
-Demo containing Spark - Avro converters that enable schema evolution
+# SparkAvroSchemaEvolution
+#### Small demo containing Spark - Avro converters that preserve the original schema information and this enable schema evolution
