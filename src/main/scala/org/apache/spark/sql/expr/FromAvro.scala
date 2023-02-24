@@ -23,6 +23,9 @@ case class FromAvro(
   options: Map[String, String]
 ) extends UnaryExpression with ExpectsInputTypes {
 
+  private val CONFLUENT_MAGIC_BYTES = 0x0
+  private val CONFLUENT_SCHEMA_ID_SIZE_BYTES = 4
+
   override def inputTypes: Seq[AbstractDataType] = Seq(BinaryType)
 
   private lazy val avroOptions = AvroOptions(options)
@@ -68,11 +71,19 @@ case class FromAvro(
 
   override def nullSafeEval(input: Any): Any = {
 
-    val binary = input.asInstanceOf[Array[Byte]]
     Try {
-      val id = getIdFromMessage(binary)
+      val binary = input.asInstanceOf[Array[Byte]]
 
-      decoder = DecoderFactory.get().binaryDecoder(binary, 5, binary.length, decoder)
+      val buffer = ByteBuffer.wrap(binary)
+      if(buffer.get() != CONFLUENT_MAGIC_BYTES) {
+        throw new Exception("Unknown magic byte!")
+      }
+
+      val id = buffer.getInt()
+
+      val start = buffer.position()
+      val length = buffer.limit() - 1 - CONFLUENT_SCHEMA_ID_SIZE_BYTES
+      decoder = DecoderFactory.get().binaryDecoder(buffer.array(), start, length, decoder)
 
       result = new GenericDatumReader[Any](subjectIndex(id), latestSchema).read(null, decoder)
 
